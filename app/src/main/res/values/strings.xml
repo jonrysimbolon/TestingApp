@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">TestingApp</string>
+    <string name="title_activity_main4">MainActivity4</string>
+    <string name="title_activity_item_detail_host">ItemDetailHostActivity</string>
+    <string name="title_item_list">Items</string>
+    <string name="title_item_detail">Item Detail</string>
+    <string name="alert_permission">Aplikasi ini membutuhkan izin kamera, mengakses file memory.</string>
+    <string name="setuju">Setuju</string>
+    <string name="batal">Batal</string>
+    <string name="formatDateName">yyyyMMddHHmmssSSS</string>
+</resources>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="alert_permission">Aplikasi ini membutuhkan izin kamera, mengakses file memory.</string>
+    <string name="setuju">Setuju</string>
+    <string name="batal">Batal</string>
+    <string name="formatDateName">yyyyMMddHHmmssSSS</string>
+</resources>

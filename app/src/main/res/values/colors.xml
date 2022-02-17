@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+
+    <color name="fbcolor">#432F7E</color>
+    <color name="colorPrimary">#CA5CCE</color>
+    <color name="colorPrimaryDark">#CA5CCE</color>
+    <color name="colorAccent">#004392</color>
+    <color name="colorAccentt">#D81B60</color>
+    <!--<color name="colorAccent">#DA2826</color>-->
+    <color name="birutua">#00397b</color>
+    <color name="white">#fff</color>
+    <color name="yellow">#e9ce01</color>
+    <color name="textviewcolor">#4db9ea</color>
+    <color name="textviewcolors">#797979</color>
+    <color name="black">#000</color>
+    <color name="green">#00b400</color>
+    <color name="greenslow">#20C220</color>
+    <color name="red">#DA2826</color>
+    <color name="redtua">#a91a18</color>
+    <color name="redslow">#ce4746</color>
+    <color name="redslowkali">#e1afaf</color>
+    <color name="blue">#004392</color>
+    <color name="deffTr">#4B808080</color>
+    <color name="deff">#808080</color>
+    <color name="deffslow">#b9b8b8</color>
+    <color name="deffslowkali">#e1e1e1</color>
+    <color name="deffslowkalii">#f5f5f5</color>
+    <color name="deffslowkaliii">#FDFCFC</color>
+    <color name="orange">#ffa500</color>
+    <color name="boxlogin">#0158ba</color>
+    <color name="boxEdDelMot">#deeaf4</color>
+    <color name="boxNotf">#e7eef4</color>
+    <color name="boxNet">#e7eef4</color>
+    <color name="boxNetBer">#EAECF0</color>
+    <color name="boxHis">#2E67C0</color>
+
+    <color name="colorPrimaryHalus">#B6D8E7</color>
+    <color name="colorPrimaryHaluss">#DAE8EE</color>
+    <!-- just bar color -->
+    <color name="boxBottom">#004392</color>
+
+    <color name="slowblue">#D8E6FD</color>
+    <color name="slowbluee">#EBF2FD</color>
+
+    <color name="warnaGameDetailBelt">#004392</color>
+
+    <color name="selectedColor">#fff</color>
+    <color name="selectedIconColor">#0e4e9b</color>
+    <color name="unSelectedColor">#7d98b7</color>
+    <color name="unSelectedIconColor">#004392</color>
+
+    <color name="cardChallengeDisable">#0273FA</color>
+</resources>
