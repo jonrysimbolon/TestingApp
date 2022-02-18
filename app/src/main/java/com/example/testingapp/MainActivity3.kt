@@ -1,17 +1,14 @@
 package com.example.testingapp
 
-import android.app.Activity
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
-import android.os.StrictMode
-import android.os.StrictMode.VmPolicy
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
@@ -31,19 +28,31 @@ import java.util.*
 @RequiresApi(Build.VERSION_CODES.M)
 class MainActivity3 : AppCompatActivity(), View.OnClickListener {
 
+    /**
+     * !!! CAUTION !!!
+     *
+     * In the manifest there are many settings
+     *
+     */
+
     private lateinit var binding: ActivityMain2Binding
-    private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
+    private lateinit var cameraLauncher: ActivityResultLauncher<Intent>
+    private lateinit var galleryLauncher: ActivityResultLauncher<String>
     private val requestCodePermission = 124
-    private lateinit var relativePath: String
     private var message = ""
     private lateinit var stream: OutputStream
     private lateinit var photoURI: Uri
     private var tag = "MainActivity3"
+    private lateinit var primaryPath: String
+
 
     override fun onClick(v: View?) {
         when (v) {
             binding.camBtn -> {
                 camAct()
+            }
+            binding.galleryBtn -> {
+                galleryAct()
             }
         }
     }
@@ -53,30 +62,66 @@ class MainActivity3 : AppCompatActivity(), View.OnClickListener {
         binding = ActivityMain2Binding.inflate(layoutInflater)
         setContentView(binding.root)
         supportActionBar!!.hide()
-        binding.camBtn.setOnClickListener(this)
 
-        // Nanti coba hapus strict mode, apakah bisa ?
-        val builder = VmPolicy.Builder()
-        StrictMode.setVmPolicy(builder.build())
+        primaryPath = "/storage/emulated/0/Android/media/$packageName/"
+
+        binding.camBtn.setOnClickListener(this)
+        binding.galleryBtn.setOnClickListener(this)
 
         permissionCameraAndFile()
-        proCam()
+
+        proCam() // Process Camera
+
+        proGallery() // Process Gallery
     }
 
-    private fun save() {
-        stream = ByteArrayOutputStream()
-        val bitmap = BitmapFactory.decodeFile(photoURI.path)
-        val saved = bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
-        if (!saved) {
-            Log.e("error", "Failed to save bitmap.")
-        }
-        binding.imageShow.setImageBitmap(bitmap)
+    /**
+     * Bagian Gallery and its process
+     */
+
+    private fun galleryAct() {
+        galleryLauncher.launch("image/*")
     }
+
+    private fun proGallery() {
+        galleryLauncher = registerForActivityResult(
+            ActivityResultContracts.GetContent()
+        ) {
+            try {
+                val bitmap = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+                    MediaStore.Images.Media.getBitmap(contentResolver, it)
+                } else {
+                    val source = ImageDecoder.createSource(contentResolver, it!!)
+                    ImageDecoder.decodeBitmap(source)
+                }
+                val stream = ByteArrayOutputStream()
+                val saved = bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+                if (!saved) {
+                    Log.e("error", "Failed to save bitmap.")
+                }
+                val file = createImageFile()
+                file.createNewFile()
+                val fo = FileOutputStream(file)
+                fo.write(stream.toByteArray())
+                Log.e(tag, "Gallery file path : ${file.path}")
+                binding.imageShow.setImageBitmap(bitmap)
+
+            } catch (e: java.lang.Exception) {
+                e.printStackTrace()
+            }
+
+        }
+    }
+
+    /**
+     * Bagian Camera and its process
+     */
 
     private fun camAct() {
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         try {
             val filePhoto = createImageFile()
+            Log.e(tag, "filePhoto (from camAct()) : ${filePhoto.path}")
             photoURI = FileProvider.getUriForFile(
                 this,
                 "com.example.testingapp.fileprovider",
@@ -85,10 +130,10 @@ class MainActivity3 : AppCompatActivity(), View.OnClickListener {
             intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
         } catch (e: Exception) {
             e.printStackTrace()
-            Log.e(tag, "message : ${e.message}")
+            Log.e(tag, "message 'camAct()' : ${e.message}")
         }
         if (intent.resolveActivity(packageManager) != null) {
-            activityResultLauncher.launch(intent)
+            cameraLauncher.launch(intent)
         } else {
             Toast.makeText(this, "There is no app that support this action", Toast.LENGTH_SHORT)
                 .show()
@@ -96,14 +141,14 @@ class MainActivity3 : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun proCam() {
-        activityResultLauncher = registerForActivityResult(
+        cameraLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) {
             when (it.resultCode) {
                 RESULT_OK -> {
                     save()
                 }
-                Activity.RESULT_CANCELED -> {
+                RESULT_CANCELED -> {
                     Log.e(tag, "User Cancelled Image Capture")
                 }
                 else -> {
@@ -113,9 +158,20 @@ class MainActivity3 : AppCompatActivity(), View.OnClickListener {
         }
     }
 
+    private fun save() {
+        stream = ByteArrayOutputStream()
+        val bitmap = BitmapFactory.decodeFile(photoURI.path)
+        Log.e(tag, "real path (photoURI) : ${photoURI.path}")
+        val saved = bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+        if (!saved) {
+            Log.e("error", "Failed to save bitmap.")
+        }
+        binding.imageShow.setImageBitmap(bitmap)
+    }
+
 
     /**
-     * Permission Area and createImage for android R
+     * Permission Area and createImage
      */
 
 
@@ -125,17 +181,21 @@ class MainActivity3 : AppCompatActivity(), View.OnClickListener {
         val df =
             SimpleDateFormat(resources.getString(R.string.formatDateName), Locale.getDefault())
         val fileName = df.format(Calendar.getInstance().time)
-        val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        //val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        val storageDir = File(primaryPath)
+        if(!storageDir.exists()){
+            val mkDir = storageDir.mkdir()
+            if(!mkDir){
+                Log.e(tag, "Gagal membuat direktor $primaryPath")
+            }
+        }
+        Log.e(tag, "StorageDir : $storageDir")
         return File.createTempFile(
             fileName, /* prefix */
             ".JPEG", /* suffix */
             storageDir /* directory */
-        ).apply {
-            // Save a file: path for use with ACTION_VIEW intents
-            relativePath = absolutePath
-        }
+        )
     }
-
 
     private fun addPermission(permissionsList: MutableList<String>, permission: String): Boolean {
         if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
