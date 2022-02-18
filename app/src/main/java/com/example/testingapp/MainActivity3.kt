@@ -1,7 +1,6 @@
 package com.example.testingapp
 
 import android.app.Activity
-import android.content.ContentValues
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -21,6 +20,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import com.example.testingapp.databinding.ActivityMain2Binding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.io.*
@@ -35,19 +35,10 @@ class MainActivity3 : AppCompatActivity(), View.OnClickListener {
     private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
     private val requestCodePermission = 124
     private lateinit var relativePath: String
-    private lateinit var relativePathQ: String
-    private lateinit var fileRP: File
-    private lateinit var fileRPQ: File
-    private lateinit var oldLocatePhoto: String
-    private lateinit var oldLocatePhotoQ: String
-    private val mimeType = "image/*"
-    private lateinit var bitmap: Bitmap
     private var message = ""
     private lateinit var stream: OutputStream
-    private lateinit var uri: Uri
-    private var camera = 1
-    private lateinit var mediaFile: File
-    private var TAG = "Mainactivity3"
+    private lateinit var photoURI: Uri
+    private var tag = "MainActivity3"
 
     override fun onClick(v: View?) {
         when (v) {
@@ -64,79 +55,38 @@ class MainActivity3 : AppCompatActivity(), View.OnClickListener {
         supportActionBar!!.hide()
         binding.camBtn.setOnClickListener(this)
 
+        // Nanti coba hapus strict mode, apakah bisa ?
         val builder = VmPolicy.Builder()
         StrictMode.setVmPolicy(builder.build())
-
-        relativePath = "${getExternalFilesDir(Environment.DIRECTORY_PICTURES)}/Testing2"
-        relativePathQ = "${Environment.DIRECTORY_PICTURES}/Testing2"
-        fileRP = File(relativePath)
-        fileRPQ = File(relativePathQ)
-        oldLocatePhoto = "${fileRP.path}${File.separator}myPhoto.JPEG"
-        oldLocatePhotoQ = "${fileRPQ.path}${File.separator}myPhoto.JPEG"
 
         permissionCameraAndFile()
         proCam()
     }
 
     private fun save() {
-        try {
-            val df =
-                SimpleDateFormat(resources.getString(R.string.formatDateName), Locale.getDefault())
-            val fileName = df.format(Calendar.getInstance().time)
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                setImageQ(fileName)
-            } else {
-                setImage(fileName)
-            }
-
-        } catch (e: IOException) {
-            Log.e("Error", "message : ${e.message}")
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                contentResolver.delete(uri, null, null)
-            }
-        }
-    }
-
-
-    private fun setImage(fileName: String) {
-        val photo = BitmapFactory.decodeFile(oldLocatePhoto)
-        val file = File(fileRP, "$fileName.JPEG")
-        val bytes = ByteArrayOutputStream()
-        photo.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
-        file.createNewFile()
-        val fo = FileOutputStream(file)
-        fo.write(bytes.toByteArray())
-        fo.close()
-
-        val fileOld = File(oldLocatePhoto)
-        fileOld.delete()
-
-        binding.imageShow.setImageBitmap(photo)
-    }
-
-    @RequiresApi(Build.VERSION_CODES.Q)
-    private fun setImageQ(fileName: String) {
-        val photo = BitmapFactory.decodeFile(oldLocatePhotoQ)
-        val contentValues = ContentValues()
-        contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
-        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
-        contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, relativePathQ)
-
-        val contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-        uri = contentResolver.insert(contentUri, contentValues)!!
-        stream = contentResolver.openOutputStream(uri)!!
-
-        val saved = photo.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+        stream = ByteArrayOutputStream()
+        val bitmap = BitmapFactory.decodeFile(photoURI.path)
+        val saved = bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
         if (!saved) {
             Log.e("error", "Failed to save bitmap.")
         }
-        binding.imageShow.setImageBitmap(photo)
+        binding.imageShow.setImageBitmap(bitmap)
     }
 
     private fun camAct() {
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, getOutPutMediaFileUri(camera))
+        try {
+            val filePhoto = createImageFile()
+            photoURI = FileProvider.getUriForFile(
+                this,
+                "com.example.testingapp.fileprovider",
+                filePhoto
+            )
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Log.e(tag, "message : ${e.message}")
+        }
         if (intent.resolveActivity(packageManager) != null) {
             activityResultLauncher.launch(intent)
         } else {
@@ -144,42 +94,6 @@ class MainActivity3 : AppCompatActivity(), View.OnClickListener {
                 .show()
         }
     }
-
-    private fun getOutPutMediaFileUri(type: Int): Uri {
-        return Uri.fromFile(getOutputMediaFile(type))
-    }
-
-    private fun getOutputMediaFile(type: Int): File? {
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
-            if (!fileRPQ.exists()) {
-                if (!fileRPQ.mkdirs()) {
-                    Log.e(
-                        relativePathQ, "Oops! Failed create "
-                                + relativePathQ + " directory"
-                    )
-                    return null
-                }
-            }
-            if (type == MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE) {
-                mediaFile = File(oldLocatePhotoQ)
-            }
-        }else {
-            if (!fileRP.exists()) {
-                if (!fileRP.mkdirs()) {
-                    Log.e(
-                        relativePath, "Oops! Failed create "
-                                + relativePath + " directory"
-                    )
-                    return null
-                }
-            }
-            if (type == MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE) {
-                mediaFile = File(oldLocatePhoto)
-            }
-        }
-        return mediaFile
-    }
-
 
     private fun proCam() {
         activityResultLauncher = registerForActivityResult(
@@ -190,10 +104,10 @@ class MainActivity3 : AppCompatActivity(), View.OnClickListener {
                     save()
                 }
                 Activity.RESULT_CANCELED -> {
-                    Log.e(TAG, "User Cancelled Image Capture")
+                    Log.e(tag, "User Cancelled Image Capture")
                 }
                 else -> {
-                    Log.e(TAG, "Failed to Capture Image")
+                    Log.e(tag, "Failed to Capture Image")
                 }
             }
         }
@@ -201,8 +115,26 @@ class MainActivity3 : AppCompatActivity(), View.OnClickListener {
 
 
     /**
-     * Permission Area
+     * Permission Area and createImage for android R
      */
+
+
+    @Throws(IOException::class)
+    private fun createImageFile(): File {
+        // Create an image file name
+        val df =
+            SimpleDateFormat(resources.getString(R.string.formatDateName), Locale.getDefault())
+        val fileName = df.format(Calendar.getInstance().time)
+        val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        return File.createTempFile(
+            fileName, /* prefix */
+            ".JPEG", /* suffix */
+            storageDir /* directory */
+        ).apply {
+            // Save a file: path for use with ACTION_VIEW intents
+            relativePath = absolutePath
+        }
+    }
 
 
     private fun addPermission(permissionsList: MutableList<String>, permission: String): Boolean {
@@ -225,7 +157,6 @@ class MainActivity3 : AppCompatActivity(), View.OnClickListener {
             permissionsNeeded.add("WRITE_EXTERNAL_STORAGE")
         if (!addPermission(permissionsList, android.Manifest.permission.READ_EXTERNAL_STORAGE))
             permissionsNeeded.add("READ_EXTERNAL_STORAGE")
-
         if (permissionsList.size > 0) {
             if (permissionsNeeded.size > 0) {
                 message = resources.getString(R.string.alert_permission)
@@ -276,12 +207,11 @@ class MainActivity3 : AppCompatActivity(), View.OnClickListener {
                     PackageManager.PERMISSION_GRANTED
                 perms[android.Manifest.permission.READ_EXTERNAL_STORAGE] =
                     PackageManager.PERMISSION_GRANTED
-
                 if (perms[android.Manifest.permission.CAMERA] == PackageManager.PERMISSION_GRANTED
                     && perms[android.Manifest.permission.WRITE_EXTERNAL_STORAGE] == PackageManager.PERMISSION_GRANTED
                     && perms[android.Manifest.permission.READ_EXTERNAL_STORAGE] == PackageManager.PERMISSION_GRANTED
                 ) {
-                    Log.e(TAG, "onRequestPermissionsResult OK")
+                    Log.e(tag, "onRequestPermissionsResult OK")
                 }
             }
             else -> super.onRequestPermissionsResult(requestCode, permissions, grantResults)

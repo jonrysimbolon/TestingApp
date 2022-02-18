@@ -7,9 +7,10 @@
         <entry key="app/src/main/res/drawable/buttonbackground.xml" value="0.25462962962962965" />
         <entry key="app/src/main/res/layout-sw600dp/fragment_item_detail.xml" value="0.109375" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.29128205128205126" />
-        <entry key="app/src/main/res/layout/activity_main2.xml" value="0.15364583333333334" />
+        <entry key="app/src/main/res/layout/activity_main2.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_main3.xml" value="0.15364583333333334" />
         <entry key="app/src/main/res/layout/fragment_item_detail.xml" value="0.2462962962962963" />
+        <entry key="app/src/main/res/xml/file_paths.xml" value="0.15572916666666667" />
       </map>
     </option>
   </component>
