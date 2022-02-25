@@ -30,6 +30,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TestingApp">
         <activity
+            android:name=".DicodingTest"
+            android:exported="false" />
+        <activity
             android:name=".TampilanAwal"
             android:exported="true"
             android:theme="@style/Theme.TestingApp.Launcher">
@@ -44,7 +47,7 @@
             android:exported="false" />
         <activity
             android:name=".TestPageLogin"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".MainActivity4"
             android:exported="false" />

@@ -66,8 +66,16 @@
         <item name="android:textSize">14sp</item>
     </style>
 
+    <style name="TextColorPrimary.Box.List">
+        <item name="backgroundColor">@color/black</item>
+    </style>
+
     <style name="TextColorPrimary.Box.Normal">
         <item name="android:inputType">text</item>
+    </style>
+
+    <style name="TextColorPrimary.Box.Normal.Dropdown">
+        <item name="android:drawableEnd">@drawable/ic_dropdown_dark</item>
     </style>
 
     <style name="TextColorPrimary.Box.Password">
@@ -95,10 +103,8 @@
         <item name="android:backgroundTint">@color/redtua</item>
     </style>
 
-
     <style name="TextInputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
         <item name="boxStrokeWidth">2dp</item>
         <item name="boxBackgroundMode">outline</item>
     </style>
-
 </resources>

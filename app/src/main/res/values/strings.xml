@@ -1,4 +1,5 @@
 <resources>
+    <string name="mode">Day</string>
     <string name="app_name">TestingApp</string>
     <string name="path_name">/storage/emulated/0/Android/media/</string>
     <string name="alert_permission">Aplikasi ini membutuhkan izin kamera, mengakses file memory.</string>

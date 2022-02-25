@@ -19,8 +19,6 @@
 
 
 
-
-
         <!-- Mengubah warna action bar -->
         <!--<item name="actionBarTheme">@style/MyActionBar</item>-->
 
@@ -68,8 +66,16 @@
         <item name="android:textSize">14sp</item>
     </style>
 
+    <style name="TextColorPrimary.Box.List">
+        <item name="backgroundColor">@color/white</item>
+    </style>
+
     <style name="TextColorPrimary.Box.Normal">
         <item name="android:inputType">text</item>
+    </style>
+
+    <style name="TextColorPrimary.Box.Normal.Dropdown">
+        <item name="android:drawableEnd">@drawable/ic_dropdown</item>
     </style>
 
     <style name="TextColorPrimary.Box.Password">
@@ -101,5 +107,4 @@
         <item name="boxStrokeWidth">2dp</item>
         <item name="boxBackgroundMode">outline</item>
     </style>
-
 </resources>

@@ -10,16 +10,18 @@
 
     <com.google.android.material.textfield.TextInputLayout
         style="@style/TextInputLayoutStyle"
-        android:id="@+id/usernameLay"
+        android:id="@+id/bukuLay"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:hintAnimationEnabled="true"
         android:hint="List Buku">
 
         <com.google.android.material.textfield.TextInputEditText
-            style="@style/TextColorPrimary.Box.Normal"
+            style="@style/TextColorPrimary.Box.Normal.Dropdown"
+            android:cursorVisible="false"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
             android:id="@+id/bukuBox"
-            android:drawableEnd="@drawable/ic_dropdown"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </com.google.android.material.textfield.TextInputLayout>

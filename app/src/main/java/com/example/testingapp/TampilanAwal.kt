@@ -9,9 +9,7 @@ class TampilanAwal : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tampilan_awal)
 
-        //goBasicSpecial(TestPageLogin::class.java) // For optimize leasingapps
-
-        goBasicSpecial(MainActivity5::class.java) // For Exercise Dicoding
+        goBasicSpecial(DicodingTest::class.java) // For Exercise Dicoding
     }
 
     override fun onBackPressed() {
