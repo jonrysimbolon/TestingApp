@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp"
+    tools:context=".MainActivity4">
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/switchNigthLight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textOff="Ligth"
+            android:textOn="Dark"
+            app:showText="true"
+            app:splitTrack="true"
+            app:thumbTint="@color/colorPrimary"
+            app:trackTint="@color/redtua"/>
+
+    <com.google.android.material.button.MaterialButton
+        style="@style/ButtonTheme.Red"
+        android:layout_marginTop="20dp"
+        android:layout_gravity="bottom|end"
+        android:text="Next"
+        android:id="@+id/nextBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+</androidx.appcompat.widget.LinearLayoutCompat>

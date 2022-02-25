@@ -1,11 +1,21 @@
 <resources>
     <string name="app_name">TestingApp</string>
-    <string name="title_activity_main4">MainActivity4</string>
-    <string name="title_activity_item_detail_host">ItemDetailHostActivity</string>
-    <string name="title_item_list">Items</string>
-    <string name="title_item_detail">Item Detail</string>
+    <string name="path_name">/storage/emulated/0/Android/media/</string>
     <string name="alert_permission">Aplikasi ini membutuhkan izin kamera, mengakses file memory.</string>
     <string name="setuju">Setuju</string>
     <string name="batal">Batal</string>
     <string name="formatDateName">yyyyMMddHHmmssSSS</string>
+    <string name="hello">hello</string>
+    <string name="world">world</string>
+    <string name="koneksibermasalah">Koneksi anda Bermasalah</string>
+
+    <string-array name="listBooks">
+        <item>Mindset</item>
+        <item>Habit is Power</item>
+        <item>Seni Hidup Minimalis</item>
+        <item>Lao Tzu</item>
+        <item>Berdamai dengan Rasa Malas</item>
+        <item><![CDATA[Berpikir Ala Einstein & Bertindak ala Gandhi]]></item>
+        <item>Mahir Berbicara</item>
+    </string-array>
 </resources>

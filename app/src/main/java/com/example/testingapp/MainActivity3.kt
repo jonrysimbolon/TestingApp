@@ -10,14 +10,17 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.DisplayMetrics
 import android.util.Log
+import android.view.Display
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.FileProvider
+import androidx.core.hardware.display.DisplayManagerCompat
 import com.example.testingapp.databinding.ActivityMain2Binding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.io.*
@@ -25,7 +28,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 
-@RequiresApi(Build.VERSION_CODES.M)
 class MainActivity3 : AppCompatActivity(), View.OnClickListener {
 
     /**
@@ -40,10 +42,11 @@ class MainActivity3 : AppCompatActivity(), View.OnClickListener {
     private lateinit var galleryLauncher: ActivityResultLauncher<String>
     private val requestCodePermission = 124
     private var message = ""
-    private lateinit var stream: OutputStream
     private lateinit var photoURI: Uri
     private var tag = "MainActivity3"
     private lateinit var primaryPath: String
+    private lateinit var filePhoto: File
+    private var qualityImg = 80
 
 
     override fun onClick(v: View?) {
@@ -58,20 +61,23 @@ class MainActivity3 : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO) // Disable mode night
         super.onCreate(savedInstanceState)
         binding = ActivityMain2Binding.inflate(layoutInflater)
         setContentView(binding.root)
-        supportActionBar!!.hide()
+        //supportActionBar!!.hide()
 
-        primaryPath = "/storage/emulated/0/Android/media/$packageName/"
+    }
+
+    override fun onStart() {
+        super.onStart()
+        primaryPath = "${resources.getString(R.string.path_name)}$packageName/"
 
         binding.camBtn.setOnClickListener(this)
         binding.galleryBtn.setOnClickListener(this)
 
         permissionCameraAndFile()
-
         proCam() // Process Camera
-
         proGallery() // Process Gallery
     }
 
@@ -89,28 +95,42 @@ class MainActivity3 : AppCompatActivity(), View.OnClickListener {
         ) {
             try {
                 val bitmap = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+                    @Suppress("DEPRECATION")
                     MediaStore.Images.Media.getBitmap(contentResolver, it)
                 } else {
                     val source = ImageDecoder.createSource(contentResolver, it!!)
                     ImageDecoder.decodeBitmap(source)
                 }
-                val stream = ByteArrayOutputStream()
-                val saved = bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
-                if (!saved) {
-                    Log.e("error", "Failed to save bitmap.")
-                }
-                val file = createImageFile()
-                file.createNewFile()
-                val fo = FileOutputStream(file)
-                fo.write(stream.toByteArray())
-                Log.e(tag, "Gallery file path : ${file.path}")
-                binding.imageShow.setImageBitmap(bitmap)
+
+                val fileSaved = saveFile(getStreamWithBitmap(bitmap, "gallery"), "Gallery")
+                binding.imageShow.setImageBitmap(BitmapFactory.decodeFile(fileSaved.absolutePath))
 
             } catch (e: java.lang.Exception) {
                 e.printStackTrace()
             }
 
         }
+    }
+
+    private fun saveFile(stream: ByteArrayOutputStream, type: String): File {
+        val file = createImageFile()
+        file.createNewFile()
+        val fo = FileOutputStream(file)
+        fo.write(stream.toByteArray())
+        Log.e(tag, "$type file path : ${file.path}")
+        when(type){
+            "Camera" -> {
+                if (file.exists()) {
+                    if (filePhoto.exists()) {
+                        filePhoto.delete()
+                    }
+                }
+            }
+            "Gallery" -> {
+
+            }
+        }
+        return file
     }
 
     /**
@@ -120,11 +140,11 @@ class MainActivity3 : AppCompatActivity(), View.OnClickListener {
     private fun camAct() {
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         try {
-            val filePhoto = createImageFile()
+            filePhoto = createImageFile()
             Log.e(tag, "filePhoto (from camAct()) : ${filePhoto.path}")
             photoURI = FileProvider.getUriForFile(
                 this,
-                "com.example.testingapp.fileprovider",
+                "$packageName.fileprovider",
                 filePhoto
             )
             intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
@@ -159,16 +179,50 @@ class MainActivity3 : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun save() {
-        stream = ByteArrayOutputStream()
         val bitmap = BitmapFactory.decodeFile(photoURI.path)
         Log.e(tag, "real path (photoURI) : ${photoURI.path}")
-        val saved = bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+        val fileSaved = saveFile(getStreamWithBitmap(bitmap, "save dari camera"), "Camera")
+        binding.imageShow.setImageBitmap(BitmapFactory.decodeFile(fileSaved.absolutePath))
+    }
+
+
+    private fun getStreamWithBitmap(bitmap: Bitmap, dari: String): ByteArrayOutputStream {
+        Log.e(tag,"dari : $dari")
+        val stream = ByteArrayOutputStream()
+        val saved = bitmap.compress(Bitmap.CompressFormat.JPEG, qualityImg, stream)
         if (!saved) {
             Log.e("error", "Failed to save bitmap.")
         }
-        binding.imageShow.setImageBitmap(bitmap)
+        return stream
     }
 
+    private fun getHeightCustom(): Int {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val defaultDisplay =
+                DisplayManagerCompat.getInstance(this).getDisplay(Display.DEFAULT_DISPLAY)
+            val displayContext = defaultDisplay?.let { createDisplayContext(it) }
+            displayContext!!.resources.displayMetrics.heightPixels
+        } else {
+            val displayMetrics = DisplayMetrics()
+            @Suppress("DEPRECATION")
+            windowManager.defaultDisplay.getMetrics(displayMetrics)
+            displayMetrics.heightPixels
+        }
+    }
+
+    private fun getWidthCustom(): Int {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val defaultDisplay =
+                DisplayManagerCompat.getInstance(this).getDisplay(Display.DEFAULT_DISPLAY)
+            val displayContext = defaultDisplay?.let { createDisplayContext(it) }
+            displayContext!!.resources.displayMetrics.widthPixels
+        } else {
+            val displayMetrics = DisplayMetrics()
+            @Suppress("DEPRECATION")
+            windowManager.defaultDisplay.getMetrics(displayMetrics)
+            displayMetrics.widthPixels
+        }
+    }
 
     /**
      * Permission Area and createImage
@@ -181,28 +235,29 @@ class MainActivity3 : AppCompatActivity(), View.OnClickListener {
         val df =
             SimpleDateFormat(resources.getString(R.string.formatDateName), Locale.getDefault())
         val fileName = df.format(Calendar.getInstance().time)
-        //val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         val storageDir = File(primaryPath)
-        if(!storageDir.exists()){
+        if (!storageDir.exists()) {
             val mkDir = storageDir.mkdir()
-            if(!mkDir){
+            if (!mkDir) {
                 Log.e(tag, "Gagal membuat direktor $primaryPath")
             }
         }
         Log.e(tag, "StorageDir : $storageDir")
         return File.createTempFile(
             fileName, /* prefix */
-            ".JPEG", /* suffix */
+            ".jpg", /* suffix */
             storageDir /* directory */
         )
     }
 
     private fun addPermission(permissionsList: MutableList<String>, permission: String): Boolean {
-        if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
-            permissionsList.add(permission)
-            // Check for Rationale Option
-            if (!shouldShowRequestPermissionRationale(permission))
-                return false
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+                permissionsList.add(permission)
+                // Check for Rationale Option
+                if (!shouldShowRequestPermissionRationale(permission))
+                    return false
+            }
         }
         return true
     }
@@ -222,17 +277,21 @@ class MainActivity3 : AppCompatActivity(), View.OnClickListener {
                 message = resources.getString(R.string.alert_permission)
                 showMessageOKCancel(message,
                     { _, _ ->
-                        requestPermissions(
-                            permissionsList.toTypedArray(),
-                            requestCodePermission
-                        )
+                        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            requestPermissions(
+                                permissionsList.toTypedArray(),
+                                requestCodePermission
+                            )
+                        }
                     }, { _, _ -> finish() })
                 return
             }
-            requestPermissions(
-                permissionsList.toTypedArray(),
-                requestCodePermission
-            )
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(
+                    permissionsList.toTypedArray(),
+                    requestCodePermission
+                )
+            }
             return
         }
     }

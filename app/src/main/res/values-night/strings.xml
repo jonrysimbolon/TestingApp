@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">TestingApp</string>
+    <string name="path_name">/storage/emulated/0/Android/media/</string>
     <string name="alert_permission">Aplikasi ini membutuhkan izin kamera, mengakses file memory.</string>
     <string name="setuju">Setuju</string>
     <string name="batal">Batal</string>
     <string name="formatDateName">yyyyMMddHHmmssSSS</string>
+    <string name="hello">hello</string>
+    <string name="world">world</string>
+    <string name="koneksibermasalah">Koneksi anda Bermasalah</string>
 </resources>

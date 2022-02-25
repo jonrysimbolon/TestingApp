@@ -2,11 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.testingapp">
-
-    <!--pake queries dan permission.Query_all_packages...
+    <!--
+    pake queries dan permission.Query_all_packages...
     ...untuk buka camera di android...
-    ...berfungsi di codingan ```intent.resolveActivity(packageManager)```-->
-
+    ...berfungsi di codingan ```intent.resolveActivity(packageManager)```
+    -->
     <queries>
         <intent>
             <action android:name="android.intent.action.MAIN" />
@@ -15,21 +15,24 @@
 
     <permission android:name="android.permission.QUERY_ALL_PACKAGES" />
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.CAMERA"/>
-    <uses-feature android:name="android.hardware.camera"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <uses-feature android:name="android.hardware.camera" />
 
     <application
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/apple"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/apple"
         android:supportsRtl="true"
         android:theme="@style/Theme.TestingApp">
         <activity
-            android:name=".MainActivity3"
-            android:exported="true" >
+            android:name=".TampilanAwal"
+            android:exported="true"
+            android:theme="@style/Theme.TestingApp.Launcher">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -37,16 +40,23 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MainActivity2"
-            android:exported="false">
-
-        </activity>
+            android:name=".TestBeranda"
+            android:exported="false" />
         <activity
-            android:name=".ItemDetailHostActivity"
-            android:exported="false"
-            android:label="@string/title_activity_item_detail_host"
-            android:resizeableActivity="true"
-            tools:targetApi="24" />
+            android:name=".TestPageLogin"
+            android:exported="false"/>
+        <activity
+            android:name=".MainActivity4"
+            android:exported="false" />
+        <activity
+            android:name=".MainActivity5"
+            android:exported="false" />
+        <activity
+            android:name=".MainActivity3"
+            android:exported="false" />
+        <activity
+            android:name=".MainActivity2"
+            android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="false" />
